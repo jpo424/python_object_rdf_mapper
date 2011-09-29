@@ -1,0 +1,1 @@
+Python based ORM(Object RDF Mapper) that persists Python Objects in an RDF triple store and allows, via this Python object interface, basic search and CRUD functionality
