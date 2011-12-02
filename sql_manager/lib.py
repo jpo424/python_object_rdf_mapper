@@ -23,13 +23,16 @@ def get_id(session):
     
     session - the current SQLAlchemy session
     """
-    # explicit workaround for sqlite given its lack of use
-    # of sequence tables for managing ids
+    # explicit workaround for sqlite
+    # get the last id used, add 1 to it(use it)
+    # update table with sequence + 1
     engine_text = str(session.bind.engine)
     if 'sqlite' in engine_text:
-        next_id = session.connection().execute("select max(id) from triples_object_inferred;").first()
-        next_id = (next_id[0], 0)[next_id[0]== None] + 1
-        print next_id
+        next_id = session.connection().execute("select seq from sqlite_sequence where name = 'triples';").first()[0]
+        next_id = next_id + 1
+        update_text = "update sqlite_sequence set seq = {0} where name = 'triples'".format(next_id)
+        # increment the sequence table value so we do use id again
+        session.connection().execute(update_text)
     else:
         sequence = Sequence("triple_id_seq")
         next_id = session.connection().execute(sequence)

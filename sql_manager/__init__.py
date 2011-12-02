@@ -37,7 +37,8 @@ def initialize_triple_store(connect_string):
         # columns for URIs
         Column('subject_uri', String(255)),
         Column('predicate_uri', String(255)),
-        Column('object_uri', String(255)) 
+        Column('object_uri', String(255)),
+        sqlite_autoincrement = True
         )
     triples_object_inferred_table = Table('triples_object_inferred', metadata,
         Column('id', Integer, Sequence('triple_object_id_seq'), primary_key=True),
@@ -46,7 +47,8 @@ def initialize_triple_store(connect_string):
         Column('predicate_uri', String(255)),
         # polymorphic value column
         Column('object_type', String(255)),
-        Column('object_value', String(255)) 
+        Column('object_value', String(255)),
+        sqlite_autoincrement = True
         )
     # create the tables(if they dont already exist)
     metadata.create_all(engine)
