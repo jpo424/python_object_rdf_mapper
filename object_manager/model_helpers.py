@@ -1,5 +1,5 @@
 from ..sql_manager.lib import get_id
-from ..sql_manager.models import Triple,TripleObjectInferred
+from ..sql_manager.models import Triple,TripleWithDatatype
 from exceptions import RDFNoUriException
 
 """
@@ -128,7 +128,7 @@ def delete_obj(uri,session):
     session - the SQLAlchemy db session
     """
     session.query(Triple).filter(Triple.subject_uri == uri).delete()
-    session.query(TripleObjectInferred).filter(TripleObjectInferred.subject_uri == uri).delete()
+    session.query(TripleWithDatatype).filter(TripleWithDatatype.subject_uri == uri).delete()
     session.commit()
     return True
     
@@ -138,7 +138,7 @@ def parse_objects_into_buckets(triples,triples_with_datatype):
     triples that belong to the same object. Each object is 
     represented as a hash of its attributes, values
     triples - list of sql model Triple classes
-    triples_with_datatype - list of sql model TripleObjectInferred classes
+    triples_with_datatype - list of sql model TripleWithDatatype classes
     """
     # throw them together for easy parsing
     all_triples = set(triples) ^ set(triples_with_datatype) 

@@ -15,7 +15,7 @@ class Triple(object):
         return string_rep.format(self.subject_uri, self.predicate_uri, self.object_uri)
 
 
-class TripleObjectInferred(object):
+class TripleWithDatatype(object):
     
     """
     Representation of a triple where object

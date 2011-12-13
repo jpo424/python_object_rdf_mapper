@@ -40,7 +40,7 @@ def initialize_triple_store(connect_string):
         Column('object_uri', String(255)),
         sqlite_autoincrement = True
         )
-    triples_object_inferred_table = Table('triples_object_inferred', metadata,
+    triples_with_datatype_table = Table('triples_with_datatype', metadata,
         Column('id', Integer, Sequence('triple_object_id_seq'), primary_key=True),
         # columns for URIs
         Column('subject_uri', String(255)),
@@ -54,7 +54,7 @@ def initialize_triple_store(connect_string):
     metadata.create_all(engine)
     # bind model classes to tables
     mapper(models.Triple, triples_table)
-    mapper(models.TripleObjectInferred,triples_object_inferred_table)
+    mapper(models.TripleWithDatatype,triples_with_datatype_table)
     session = create_session(engine)
     return session
     
