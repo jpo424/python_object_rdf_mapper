@@ -53,6 +53,20 @@ def find_triples(cls_name,session,where_dict=None):
     where_dict - dictionary of the object attribute : value used to specifiy the
     rows we are interested in.
     """
+    # TODO:
+    # When I built the below solution, i did it so that it will work. it works.
+    # However, it is not particularly efficient. IN essence, what it does is
+    # it queires for the rows that match, get the subject uris of the matching rows
+    # and again queries both tables to retrieve all rows associaited with that subject_uri
+    # to gather up all of the attributes of an object.
+    # Since this implementation, I figured out a much more efficient solution that takes
+    # work of the ORM and pushes it to the dbms. (It does not work on sqlite however...no support for full joins)
+    # PSEUDO Query Below:
+    # select * from triples_with_datatype t inner join triples_with_datatype a on a.subject_uri = t.subject_uri full outer join triples tr on tr.subject_uri = a.subjecet_uri 
+    # where t.predicate_uri = 'name' and t.object_value = 'John';
+    # In one query, it find the matching rows, but also self joins to get other triples belonging to the object
+    # and full joins with the other table.
+    # This way, we get all the triples of the object, at one time from both tables
     find_subjects = False
     # format the class name a bit before using it to query
     # against subject_uri vals(of either model)

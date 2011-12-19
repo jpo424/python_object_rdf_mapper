@@ -1,1 +1,95 @@
-Python based ORM(Object RDF Mapper) that persists Python Objects in an RDF triple store and allows, via this Python object interface, basic search and CRUD functionality
+Python based ORM(Object RDF Mapper) that persists Python Objects in an RDF triple store and allows, via this Python object interface, basic search and CRUD functionality. Work in Progress, left to do is optimize the search queries and apply more abstractions to some of the triple processig code. 
+
+SYSTEM REQUIREMENTS:
+
+- Python 2.6 or greater(I used 2.7 for development)
+- SQL ALCHEMY 0.6.8 (probably most versions work)
+
+# SAMPLE APP
+
+import rdf_mapper
+from rdf_mapper.object_manager import models
+from rdf_mapper.object_manager.models import define_predicate, define_uri
+
+# Initialize Environment 
+
+# Instance that connects to a Postgres DB
+# just swap out with your db credentials
+#rdf_mapper.initialize("postgresql+pg8000://postgres:admin@localhost:5432/triple_store")
+# just swap out with location of your local sqlite triple store
+rdf_mapper.initialize("sqlite:////Users/you/app/triple_store.db")
+
+# SAMPLE classes that get saved to db as triples
+class Person(models.RDFSubject):
+    # creates uri attribute....every class must have a uri attribute
+    email = define_uri()
+    # numerical attribute
+    age = define_predicate()
+    # a Dog attribute....another RDF model class
+    owns = define_predicate()
+    # a string attribute
+    name = define_predicate()
+    
+
+class Dog(models.RDFSubject):
+    # a uri attribute where the value is generated
+    # automatically
+    uri = define_uri(auto=True)
+    # array of strings attribute
+    nick_names = define_predicate()
+ 
+# Survey of Features
+
+# Create a Dog
+dog = Dog()
+dog.nick_names = ["teddy","spot", "molly"]
+dog.save()
+
+# Create a Person
+person = Person(age=27)
+person.email = "happy_coder@gmail.com"
+person.name = "John"
+person.owns = dog
+person.save()
+
+# Now, both person and dog are saved in the db
+
+# Let's find the person we just saved
+# find by email and select the first match
+person_from_db = Person.find(where={'email' : 'happy_coder@gmail.com'},match='first')
+# prints this person to verify it is the same
+print person_from_db
+# Note the owns attribute, it is an RDFObjectHelper class
+# this is a place holder to allow lazy loading
+
+# Let's call the owns attribute to load the dog in the owns attribute
+dog_of_person = person_from_db.owns
+# print the dog, retrieved via lazy loading, to verify attributes
+print dog_of_person
+
+# Find all Dogs
+all_dogs_in_db = Dog.find()
+# print the array of dogs, note the one entry in the array
+print all_dogs_in_db
+
+# Now, get the dog from above out of the array of dogs
+dog_from_db = all_dogs_in_db[0]
+# print the dog to verify attributes
+print dog_from_db
+
+# Delete the objects from the db
+
+# Delete the Person
+print "Is the person persisted: {0}".format(person_from_db._persisted)
+person_from_db.delete()
+print "Is the person persisted: {0}".format(person_from_db._persisted)
+
+# Delete the Dog
+print "Is the dog persisted: {0}".format(dog_from_db._persisted)
+dog_from_db.delete()
+print "Is the dog persisted: {0}".format(dog_from_db._persisted) 
+
+#(if we deleted in the opposite order, a RDFDeletionException would be raised
+#  because the person references the dog)
+
+# Note the DB is now empty
